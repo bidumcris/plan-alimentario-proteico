@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan de Alimentación</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #777;
+    --green: #4ade80;
+    --blue: #60a5fa;
+    --red: #f87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .hero {
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a0a 50%, #0d1a0d 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 32px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(232,255,71,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #000;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 6vw, 72px);
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 14px; max-width: 520px; }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .hero-stat { text-align: left; }
+  .hero-stat .val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .hero-stat .lbl { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  /* MACROS */
+  .macros-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+  }
+  .macro { text-align: center; }
+  .macro-circle {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+  }
+  .macro-circle.protein { background: rgba(248,113,113,0.15); color: var(--red); border: 2px solid rgba(248,113,113,0.3); }
+  .macro-circle.carbs { background: rgba(96,165,250,0.15); color: var(--blue); border: 2px solid rgba(96,165,250,0.3); }
+  .macro-circle.fat { background: rgba(232,255,71,0.15); color: var(--accent); border: 2px solid rgba(232,255,71,0.3); }
+  .macro-circle.cal { background: rgba(74,222,128,0.15); color: var(--green); border: 2px solid rgba(74,222,128,0.3); }
+  .macro-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .macro-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* DAY TABS */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { border-color: var(--accent); color: var(--text); }
+  .tab-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+
+  .day-plan { display: none; }
+  .day-plan.active { display: block; }
+
+  /* MEAL CARD */
+  .meal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .meal-card:hover { border-color: #3a3a3a; }
+  .meal-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    gap: 14px;
+    cursor: pointer;
+  }
+  .meal-time {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+    min-width: 60px;
+    line-height: 1;
+  }
+  .meal-info { flex: 1; }
+  .meal-name { font-weight: 600; font-size: 15px; }
+  .meal-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .meal-macros {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .pill.p { background: rgba(248,113,113,0.15); color: var(--red); }
+  .pill.c { background: rgba(96,165,250,0.15); color: var(--blue); }
+  .pill.f { background: rgba(232,255,71,0.15); color: var(--accent); }
+  .meal-detail {
+    padding: 0 18px 16px 18px;
+    border-top: 1px solid var(--border);
+    display: none;
+  }
+  .meal-detail.open { display: block; }
+  .meal-detail ul { list-style: none; padding-top: 12px; }
+  .meal-detail ul li {
+    padding: 5px 0;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .meal-detail ul li::before { content: '→'; color: var(--accent); font-size: 12px; margin-top: 2px; flex-shrink: 0; }
+  .meal-detail .note {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent2);
+  }
+
+  /* SPECIAL DAY BADGE */
+  .day-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,107,53,0.15);
+    border: 1px solid rgba(255,107,53,0.3);
+    color: var(--accent2);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  /* SUPPLEMENTS */
+  .supp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .supp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .supp-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .supp-card h3 .icon { font-size: 18px; }
+  .supp-timing {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .supp-card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .supp-dose {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-top: 8px;
+    color: var(--text);
+  }
+
+  /* TIPS */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .tip-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .tip-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .tip-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .tip-card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* HYDRATION */
+  .hydration {
+    background: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(96,165,250,0.02));
+    border: 1px solid rgba(96,165,250,0.2);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 32px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .hydration .drop { font-size: 32px; }
+  .hydration h3 { font-weight: 600; margin-bottom: 4px; }
+  .hydration p { font-size: 13px; color: var(--muted); }
+
+  /* FOOTBALL DAY NOTE */
+  .football-note {
+    background: linear-gradient(135deg, rgba(74,222,128,0.08), rgba(74,222,128,0.02));
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .football-note .ico { font-size: 24px; flex-shrink: 0; }
+  .football-note h4 { font-weight: 600; margin-bottom: 4px; color: var(--green); }
+  .football-note p { font-size: 13px; color: var(--muted); }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    .meal-macros { display: none; }
+    .hero { padding: 32px 20px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">Plan Personalizado</div>
+  <h1>DEFINICIÓN &<br><span>VASCULARIZACIÓN</span></h1>
+  <p>Diseñado para desarrollador activo, 85–90 kg, 30–40 años. Entrenamiento de fuerza + fútbol semanal. Comidas simples, realistas y efectivas.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="val">~2200</div><div class="lbl">Kcal / día base</div></div>
+    <div class="hero-stat"><div class="val">~185g</div><div class="lbl">Proteína diaria</div></div>
+    <div class="hero-stat"><div class="val">5</div><div class="lbl">Comidas / día</div></div>
+    <div class="hero-stat"><div class="val">Déficit</div><div class="lbl">Calórico moderado</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- MACROS -->
+  <div class="macros-bar">
+    <div class="macro">
+      <div class="macro-circle protein">185g</div>
+      <div class="macro-label">Proteína</div>
+      <div class="macro-sub">~2.1g / kg peso</div>
+    </div>
+    <div class="macro">
+      <div class="macro-circle carbs">170g</div>
+      <div class="macro-label">Carbohidratos</div>
+      <div class="macro-sub">Ciclados por día</div>
+    </div>
+    <div class="macro">
+      <div class="macro-circle fat">65g</div>
+      <div class="macro-label">Grasas</div>
+      <div class="macro-sub">Saludables</div>
+    </div>
+    <div class="macro">
+      <div class="macro-circle cal">~2200</div>
+      <div class="macro-label">Calorías</div>
+      <div class="macro-sub">Déficit ~300 kcal</div>
+    </div>
+  </div>
+
+  <!-- DAILY PLAN -->
+  <div class="section-title">PLAN SEMANAL</div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showDay('lun')">LUN</button>
+    <button class="tab-btn" onclick="showDay('mar')">MAR</button>
+    <button class="tab-btn" onclick="showDay('mie')">MIÉ ⚽</button>
+    <button class="tab-btn" onclick="showDay('jue')">JUE 👦</button>
+    <button class="tab-btn" onclick="showDay('vie')">VIE 👦</button>
+    <button class="tab-btn" onclick="showDay('sab')">SÁB</button>
+    <button class="tab-btn" onclick="showDay('dom')">DOM</button>
+  </div>
+
+  <!-- LUNES - día de gym normal -->
+  <div id="day-lun" class="day-plan active">
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">07:30</div>
+        <div class="meal-info">
+          <div class="meal-name">Desayuno Pre-Trabajo</div>
+          <div class="meal-desc">Proteína + carbos de arranque</div>
+        </div>
+        <div class="meal-macros">
+          <span class="pill p">P 35g</span>
+          <span class="pill c">C 45g</span>
+          <span class="pill f">F 12g</span>
+        </div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>4 claras + 2 huevos enteros revueltos (o pochados)</li>
+          <li>2 rebanadas de pan integral tostado</li>
+          <li>½ palta en rodajas — <em>si no tenés:</em> queso untable light o tomate con aceite de oliva</li>
+        </ul>
+        <div class="note">💡 Preparación: 7 minutos. Los huevos revueltos se hacen solos mientras te vestís.</div>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">11:00</div>
+        <div class="meal-info">
+          <div class="meal-name">Snack Media Mañana</div>
+          <div class="meal-desc">Anti-catabolismo en el trabajo</div>
+        </div>
+        <div class="meal-macros">
+          <span class="pill p">P 25g</span>
+          <span class="pill c">C 15g</span>
+          <span class="pill f">F 8g</span>
+        </div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>200g yogur griego natural (0% o entero, sin azúcar)</li>
+          <li>1 puñado de almendras o nueces (20g)</li>
+          <li>Opcional: 1 fruta chica (naranja, manzana)</li>
+        </ul>
+        <div class="note">💡 Llevalo ya listo en un tupper. Cero preparación.</div>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">13:00</div>
+        <div class="meal-info">
+          <div class="meal-name">Almuerzo Principal</div>
+          <div class="meal-desc">La comida más importante del día</div>
+        </div>
+        <div class="meal-macros">
+          <span class="pill p">P 55g</span>
+          <span class="pill c">C 65g</span>
+          <span class="pill f">F 18g</span>
+        </div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>200g pollo a la plancha / pechuga o muslo sin piel</li>
+          <li>1 taza de arroz integral o fideos integrales (cocido)</li>
+          <li>Ensalada grande: lechuga, tomate, zanahoria rallada, remolacha</li>
+          <li>Aderezo: aceite de oliva + limón (no mayonesa)</li>
+          <li>Agua con gas o natural</li>
+        </ul>
+        <div class="note">💡 Podés cocinar el pollo y el arroz en batch el domingo para toda la semana. Rotisería de confianza como backup.</div>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">18:00</div>
+        <div class="meal-info">
+          <div class="meal-name">Pre-Entreno</div>
+          <div class="meal-desc">Combustible para el gym</div>
+        </div>
+        <div class="meal-macros">
+          <span class="pill p">P 30g</span>
+          <span class="pill c">C 40g</span>
+          <span class="pill f">F 5g</span>
+        </div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>1 scoop de proteína whey en agua o leche descremada</li>
+          <li>1 banana mediana</li>
+          <li>Opcional: 1 tostada con miel si entrenás pesado</li>
+        </ul>
+        <div class="note">💡 Tomarlo 45-60 min antes de entrar al gym (mientras manejás o llegás).</div>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">22:30</div>
+        <div class="meal-info">
+          <div class="meal-name">Post-Entreno / Cena</div>
+          <div class="meal-desc">Recuperación y síntesis muscular</div>
+        </div>
+        <div class="meal-macros">
+          <span class="pill p">P 45g</span>
+          <span class="pill c">C 25g</span>
+          <span class="pill f">F 15g</span>
+        </div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>150g atún en lata / caballa / carne magra a la plancha</li>
+          <li>Vegetales salteados: zucchini, brócoli, espinaca (abundante)</li>
+          <li>1 huevo duro extra (opcional, suma proteína)</li>
+          <li>Queso untable light (Finlandia, La Serenísima) si todavía tenés hambre</li>
+        </ul>
+        <div class="note">💡 Pocos carbos en la cena porque ya no hay actividad. Priorizá proteína y vegetales.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARTES -->
+  <div id="day-mar" class="day-plan">
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">07:30</div>
+        <div class="meal-info"><div class="meal-name">Desayuno</div><div class="meal-desc">Similar al lunes, podés variar</div></div>
+        <div class="meal-macros"><span class="pill p">P 35g</span><span class="pill c">C 40g</span><span class="pill f">F 12g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Opción A: Avena cocida (60g) con proteína whey mezclada</li>
+          <li>Opción B: Revuelto de huevos + queso untable + palta en tostadas integrales <em>(martes o miércoles)</em></li>
+          <li>Si no tenés palta: reemplazá con queso untable extra o tomate con aceite de oliva</li>
+          <li>Café con azúcar</li>
+        </ul>
+        <div class="note">💡 La avena con whey es súper rápida y muy completa macros.</div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">11:00</div>
+        <div class="meal-info"><div class="meal-name">Snack</div><div class="meal-desc">Yogur o frutos secos</div></div>
+        <div class="meal-macros"><span class="pill p">P 20g</span><span class="pill c">C 10g</span><span class="pill f">F 10g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>200g yogur griego o 2 huevos duros preparados de antes</li>
+          <li>1 puñado de nueces o almendras</li>
+        </ul>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">13:00</div>
+        <div class="meal-info"><div class="meal-name">Almuerzo</div><div class="meal-desc">Proteína + carbos complejos</div></div>
+        <div class="meal-macros"><span class="pill p">P 55g</span><span class="pill c">C 65g</span><span class="pill f">F 15g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>200g carne magra (nalga, lomo) a la plancha</li>
+          <li>Puré de batata (1 batata mediana)</li>
+          <li>Ensalada verde con aceite de oliva</li>
+        </ul>
+        <div class="note">💡 La batata es mejor opción que la papa blanca para definición.</div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">18:00</div>
+        <div class="meal-info"><div class="meal-name">Pre-Entreno</div><div class="meal-desc">Igual que lunes</div></div>
+        <div class="meal-macros"><span class="pill p">P 30g</span><span class="pill c">C 40g</span><span class="pill f">F 5g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Whey + banana. Simple y efectivo.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">22:30</div>
+        <div class="meal-info"><div class="meal-name">Cena Post-Entreno</div><div class="meal-desc">Alta proteína, bajo en carbos</div></div>
+        <div class="meal-macros"><span class="pill p">P 45g</span><span class="pill c">C 20g</span><span class="pill f">F 15g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>2 latas de atún + tomate cherry + zanahoria rallada + aceite de oliva</li>
+          <li>2 huevos duros</li>
+          <li>1 tostada integral (opcional)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIERCOLES - FUTBOL -->
+  <div id="day-mie" class="day-plan">
+    <div class="day-badge">⚽ DÍA DE FÚTBOL — Ajuste calórico +200 kcal</div>
+    <div class="football-note">
+      <div class="ico">⚽</div>
+      <div>
+        <h4>Miércoles: Fútbol a las 22hs con tu hijo</h4>
+        <p>Sumás actividad extra al gym. Aumentá los carbos del almuerzo y tomá una colación antes del partido. Hidratación clave ese día.</p>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">07:30</div>
+        <div class="meal-info"><div class="meal-name">Desayuno</div><div class="meal-desc">Carbos extra para el día activo</div></div>
+        <div class="meal-macros"><span class="pill p">P 35g</span><span class="pill c">C 55g</span><span class="pill f">F 12g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Avena (70g) + 1 scoop whey mezclado + fruta</li>
+          <li>Café con azúcar</li>
+        </ul>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">13:00</div>
+        <div class="meal-info"><div class="meal-name">Almuerzo reforzado</div><div class="meal-desc">+porción de carbos por el partido</div></div>
+        <div class="meal-macros"><span class="pill p">P 55g</span><span class="pill c">C 90g</span><span class="pill f">F 15g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>200g pollo a la plancha</li>
+          <li>1.5 tazas arroz integral (cocido) — porción más grande hoy</li>
+          <li>Ensalada abundante</li>
+        </ul>
+        <div class="note">💡 Hoy los carbos son tus amigos. No los reduzcas.</div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">18:00</div>
+        <div class="meal-info"><div class="meal-name">Pre-Gym</div><div class="meal-desc">Normal</div></div>
+        <div class="meal-macros"><span class="pill p">P 30g</span><span class="pill c">C 40g</span><span class="pill f">F 5g</span></div>
+      </div>
+      <div class="meal-detail"><ul><li>Whey + banana como siempre</li></ul></div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">21:30</div>
+        <div class="meal-info"><div class="meal-name">Pre-Fútbol (con tu hijo)</div><div class="meal-desc">Colación rápida antes del partido</div></div>
+        <div class="meal-macros"><span class="pill p">P 15g</span><span class="pill c">C 30g</span><span class="pill f">F 3g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>1 banana + 1 yogur griego chico</li>
+          <li>O 1 porción de avena fría preparada antes</li>
+        </ul>
+        <div class="note">💡 Liviano pero con carbos rápidos. No entrenar con el estómago lleno.</div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">23:30</div>
+        <div class="meal-info"><div class="meal-name">Post-Fútbol / Cena tardía</div><div class="meal-desc">Recuperación nocturna</div></div>
+        <div class="meal-macros"><span class="pill p">P 40g</span><span class="pill c">C 15g</span><span class="pill f">F 10g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Queso untable light o yogur griego (200g)</li>
+          <li>2-3 huevos duros o un poco de atún</li>
+          <li>Nada pesado — el cuerpo va a dormir pronto</li>
+        </ul>
+        <div class="note">💡 Sí o sí proteína post-partido para frenar el catabolismo nocturno.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JUEVES - con el hijo todo el día -->
+  <div id="day-jue" class="day-plan">
+    <div class="day-badge">👦 DÍA CON TU HIJO — Comidas flexibles y sin gym</div>
+
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">08:00</div>
+        <div class="meal-info"><div class="meal-name">Desayuno familiar</div><div class="meal-desc">Podés hacer algo rico para los dos</div></div>
+        <div class="meal-macros"><span class="pill p">P 30g</span><span class="pill c">C 45g</span><span class="pill f">F 14g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Revuelto de 3 huevos enteros para los dos (o 2 claras + 2 enteros si querés optimizar)</li>
+          <li>Opción A: tostadas integrales con queso untable light + tomate</li>
+          <li>Opción B (jueves especial con tu hijo): revuelto + queso untable + palta + tostadas integrales — rico para los dos</li>
+          <li>Si no tenés palta: queso untable extra o tomate con aceite de oliva, queda igual de bien</li>
+          <li>Jugo de naranja natural para el nene, café con azúcar para vos</li>
+        </ul>
+        <div class="note">💡 La diferencia entre 3 claras+2 enteros vs 3 enteros es mínima en la práctica. El jueves simplificá, estás con tu hijo.</div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">13:00</div>
+        <div class="meal-info"><div class="meal-name">Almuerzo (sin gym esta noche)</div><div class="meal-desc">Reducí un poco los carbos</div></div>
+        <div class="meal-macros"><span class="pill p">P 50g</span><span class="pill c">C 45g</span><span class="pill f">F 15g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Milanesa de pollo al horno (o a la plancha) para los dos</li>
+          <li>Arroz o papa para el nene — vos tomá menos porción de carbos</li>
+          <li>Ensalada grande para los dos</li>
+        </ul>
+        <div class="note">💡 La milanesa al horno es rápida y la pueden comer juntos sin problema.</div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">17:00</div>
+        <div class="meal-info"><div class="meal-name">Merienda</div><div class="meal-desc">Con el nene</div></div>
+        <div class="meal-macros"><span class="pill p">P 20g</span><span class="pill c">C 20g</span><span class="pill f">F 8g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Yogur griego (para vos) y yogur normal para él</li>
+          <li>Frutas cortadas / banana / manzana</li>
+          <li>Una porción de frutos secos para vos</li>
+        </ul>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">20:30</div>
+        <div class="meal-info"><div class="meal-name">Cena</div><div class="meal-desc">Día sin entrenamiento — reducir carbos</div></div>
+        <div class="meal-macros"><span class="pill p">P 45g</span><span class="pill c">C 15g</span><span class="pill f">F 18g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Salmón al horno o atún + vegetales salteados</li>
+          <li>Ensalada grande con aceite de oliva</li>
+          <li>Pollo asado simple si lo hacés para los dos</li>
+        </ul>
+        <div class="note">💡 Sin gym = menos carbos en cena. El cuerpo no los usa y los almacena.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIERNES - con el hijo -->
+  <div id="day-vie" class="day-plan">
+    <div class="day-badge">👦 VIERNES CON TU HIJO — Gym nocturno si podés</div>
+
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">07:30</div>
+        <div class="meal-info"><div class="meal-name">Desayuno</div><div class="meal-desc">Normal, proteína alta</div></div>
+        <div class="meal-macros"><span class="pill p">P 35g</span><span class="pill c">C 40g</span><span class="pill f">F 12g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Huevos + tostadas integrales (igual que días anteriores)</li>
+          <li>Café con azúcar</li>
+        </ul>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">13:00</div>
+        <div class="meal-info"><div class="meal-name">Almuerzo</div><div class="meal-desc">Completo</div></div>
+        <div class="meal-macros"><span class="pill p">P 55g</span><span class="pill c">C 60g</span><span class="pill f">F 15g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Carne a la plancha / pollo + arroz o batata + ensalada</li>
+          <li>El nene come lo mismo, perfectamente compatible</li>
+        </ul>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">20:00</div>
+        <div class="meal-info"><div class="meal-name">Cena / Post-Gym</div><div class="meal-desc">Flexible</div></div>
+        <div class="meal-macros"><span class="pill p">P 45g</span><span class="pill c">C 25g</span><span class="pill f">F 15g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Si fuiste al gym: proteína rápida (whey + banana al llegar)</li>
+          <li>Cena: lo que quieras dentro del plan — pescado, pollo, huevos</li>
+          <li>Viernes podés ser un poco más flexible sin destruir el plan</li>
+        </ul>
+        <div class="note">💡 Un día flexible no arruina nada. El contexto semanal es lo que importa.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SABADO -->
+  <div id="day-sab" class="day-plan">
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">09:00</div>
+        <div class="meal-info"><div class="meal-name">Desayuno tardío</div><div class="meal-desc">Sin apuro, fin de semana</div></div>
+        <div class="meal-macros"><span class="pill p">P 35g</span><span class="pill c">C 45g</span><span class="pill f">F 15g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Omelette de 4 claras + 2 huevos enteros con verduras</li>
+          <li>Pan integral con palta — <em>si no tenés:</em> queso untable light o tomate con aceite de oliva</li>
+          <li>Fruta de estación</li>
+          <li>Café</li>
+        </ul>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">13:30</div>
+        <div class="meal-info"><div class="meal-name">Almuerzo</div><div class="meal-desc">Podés ser un poco más libre</div></div>
+        <div class="meal-macros"><span class="pill p">P 50g</span><span class="pill c">C 60g</span><span class="pill f">F 20g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Asado: priorizá cortes magros (vacío, lomo, pollo)</li>
+          <li>Ensalada abundante</li>
+          <li>1 porción de pan integral</li>
+        </ul>
+        <div class="note">💡 El asado del sábado es perfectamente compatible. Evitá las salchichas y chorizos en exceso.</div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">20:00</div>
+        <div class="meal-info"><div class="meal-name">Cena</div><div class="meal-desc">Light, compensar el almuerzo</div></div>
+        <div class="meal-macros"><span class="pill p">P 40g</span><span class="pill c">C 15g</span><span class="pill f">F 12g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Atún + ensalada grande</li>
+          <li>O yogur griego + fruta si el almuerzo fue abundante</li>
+          <li>Pocos carbos si no entrenaste</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOMINGO -->
+  <div id="day-dom" class="day-plan">
+    <div class="day-badge">🍳 DOMINGO — Meal prep para la semana</div>
+    <div class="football-note">
+      <div class="ico">📦</div>
+      <div>
+        <h4>Batch cooking dominical (30–40 min)</h4>
+        <p>Cocinar arroz, pechugas y hervir huevos el domingo te salva toda la semana. Guarda en tuppers en la heladera y listo.</p>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">09:30</div>
+        <div class="meal-info"><div class="meal-name">Desayuno</div><div class="meal-desc">Tranquilo</div></div>
+        <div class="meal-macros"><span class="pill p">P 30g</span><span class="pill c">C 50g</span><span class="pill f">F 14g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Avena con frutas + proteína whey</li>
+          <li>Café o té</li>
+          <li>Mientras tanto, arrancá el batch cooking en paralelo</li>
+        </ul>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">14:00</div>
+        <div class="meal-info"><div class="meal-name">Almuerzo</div><div class="meal-desc">Descanso activo</div></div>
+        <div class="meal-macros"><span class="pill p">P 50g</span><span class="pill c">C 55g</span><span class="pill f">F 15g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Pollo al horno con papas o batata (horneadas juntas, fácil)</li>
+          <li>Ensalada de tomate y cebolla</li>
+          <li>El domingo podés comer más tranquilo, sin apuro</li>
+        </ul>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header" onclick="toggleMeal(this)">
+        <div class="meal-time">20:30</div>
+        <div class="meal-info"><div class="meal-name">Cena</div><div class="meal-desc">Cierre de semana</div></div>
+        <div class="meal-macros"><span class="pill p">P 40g</span><span class="pill c">C 20g</span><span class="pill f">F 12g</span></div>
+      </div>
+      <div class="meal-detail">
+        <ul>
+          <li>Omelette de claras con verduras y queso untable light</li>
+          <li>Ensalada o sopa de verduras</li>
+          <li>Cena light para mañana arrancar bien</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPLEMENTACION -->
+  <div class="section-title" style="margin-top:40px">SUPLEMENTACIÓN</div>
+  <div class="supp-grid">
+    <div class="supp-card">
+      <h3><span class="icon">🥛</span> Whey Protein</h3>
+      <div class="supp-timing">Pre y/o post entreno</div>
+      <p>El más importante. Alcanzar 185g de proteína diaria con comida sola es difícil. El whey lo facilita sin calorías extras.</p>
+      <span class="supp-dose">1-2 scoops / día (25-50g proteína)</span>
+    </div>
+    <div class="supp-card">
+      <h3><span class="icon">⚡</span> Creatina Monohidrato</h3>
+      <div class="supp-timing">Todos los días, cualquier hora</div>
+      <p>El suplemento más respaldado científicamente. Aumenta fuerza, tamaño muscular y recuperación. Esencial para brazos y definición.</p>
+      <span class="supp-dose">5g / día (no hace falta ciclar)</span>
+    </div>
+    <div class="supp-card">
+      <h3><span class="icon">☕</span> Cafeína / Pre-entreno</h3>
+      <div class="supp-timing">30-45 min antes del gym</div>
+      <p>Si llegás cansado del trabajo al gym (muy común), un pre-entreno o café doble mejora el rendimiento notablemente.</p>
+      <span class="supp-dose">Café natural o pre-entreno básico</span>
+    </div>
+    <div class="supp-card">
+      <h3><span class="icon">🐟</span> Omega-3</h3>
+      <div class="supp-timing">Con el almuerzo o cena</div>
+      <p>Reduce inflamación, mejora recuperación muscular y apoya la vascularización. Fundamental para alguien que entrena y juega al fútbol.</p>
+      <span class="supp-dose">2-3 cápsulas / día (con comida)</span>
+    </div>
+    <div class="supp-card">
+      <h3><span class="icon">🌙</span> Magnesio</h3>
+      <div class="supp-timing">Antes de dormir</div>
+      <p>Mejora la calidad del sueño y la recuperación nocturna. Con tu horario de entrenamiento tardío, dormir bien es parte del entrenamiento.</p>
+      <span class="supp-dose">300-400mg (citrato o glicinato)</span>
+    </div>
+    <div class="supp-card">
+      <h3><span class="icon">☀️</span> Vitamina D3</h3>
+      <div class="supp-timing">Con el desayuno</div>
+      <p>Trabajás en escritorio todo el día — la deficiencia de D3 es muy común en desarrolladores y afecta hormonas anabólicas directamente.</p>
+      <span class="supp-dose">2000-4000 UI / día</span>
+    </div>
+  </div>
+
+  <!-- HIDRATACION -->
+  <div class="hydration">
+    <div class="drop">💧</div>
+    <div>
+      <h3>Hidratación diaria: 3 a 3.5 litros</h3>
+      <p>Los días de gym y fútbol (miércoles) subí a 4L. La vascularización depende directamente de estar bien hidratado. Botella de 1L en el escritorio, siempre a la vista. Agua con gas cuenta. <strong>El mate en la oficina suma</strong> — tomalo amargo si podés, cuenta como hidratación y tiene antioxidantes. <strong>Amargo con soda (estilo Terma)</strong> perfecto, casi cero calorías, no afecta el plan para nada.</p>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="section-title">TIPS CLAVE</div>
+  <div class="tips-grid">
+    <div class="tip-card">
+      <div class="tip-icon">📦</div>
+      <div>
+        <h4>Batch Cooking Dominical</h4>
+        <p>Arroz integral, pechugas hervidas, huevos duros. 35 minutos el domingo = semana resuelta. Es la diferencia entre cumplir o improvisar.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🔄</div>
+      <div>
+        <h4>Ciclo de carbohidratos</h4>
+        <p>Días con gym: +carbos. Días sin gym (jueves): -carbos. Esto acelera la definición manteniendo músculo.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🍕</div>
+      <div>
+        <h4>Flexibilidad con tu hijo</h4>
+        <p>Los días con él priorizá proteína. Si comen pizza o algo especial, compensá en la próxima comida, no en el próximo día.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">😴</div>
+      <div>
+        <h4>El sueño es entrenamiento</h4>
+        <p>Con gym a las 22hs, apuntá a dormir antes de la 1am. La hormona de crecimiento se libera en el sueño profundo. Sin sueño, sin resultados.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">📊</div>
+      <div>
+        <h4>Medite, no solo pesate</h4>
+        <p>La vascularización se ve en el espejo y en medidas de brazo/cintura, no en la balanza. Pesate 1x/semana en ayunas.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">⚽</div>
+      <div>
+        <h4>El fútbol cuenta</h4>
+        <p>Una hora de fútbol quema 500-700 kcal. Ese miércoles no reduzas la comida — hacé lo contrario.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Plan diseñado para definición + vascularización · ~85-90 kg · 30-40 años · Desarrollador activo<br>
+  <span style="color:#3a3a3a">Consultá con un nutricionista para ajustes personalizados.</span>
+</footer>
+
+<script>
+function showDay(day) {
+  document.querySelectorAll('.day-plan').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('day-' + day).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleMeal(header) {
+  const detail = header.nextElementSibling;
+  detail.classList.toggle('open');
+}
+</script>
+</body>
+</html>
